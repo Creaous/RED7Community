@@ -47,7 +47,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 	// Validate credentials
 	if(empty($username_err) && empty($password_err)){
 		// Prepare a select statement
-		$sql = "SELECT id, username, password, created_at, lastlogin, lastloginDate, membership, currency, badges, items, followers, following FROM users WHERE username = ?";
+		$sql = "SELECT id, username, password, created_at, lastlogin, lastloginDate, membership, currency, badges, items, followers, following, isAdmin FROM users WHERE username = ?";
 		
 		if($stmt = mysqli_prepare($link, $sql)){
 			// Bind variables to the prepared statement as parameters
@@ -64,7 +64,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 				// Check if username exists, if yes then verify password
 				if(mysqli_stmt_num_rows($stmt) == 1){                    
 					// Bind result variables
-					mysqli_stmt_bind_result($stmt, $id, $username, $hashed_password, $created_at, $lastlogin, $lastloginDate, $membershipTemp, $currencyTemp, $badges, $items, $followers, $following);
+					mysqli_stmt_bind_result($stmt, $id, $username, $hashed_password, $created_at, $lastlogin, $lastloginDate, $membershipTemp, $currencyTemp, $badges, $items, $followers, $following, $isAdmin);
 					if(mysqli_stmt_fetch($stmt)){
 						if(password_verify($password, $hashed_password)){
 							session_destroy();
@@ -78,6 +78,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 							$_SESSION["username"] = $username;
 							$_SESSION["created_at"] = $created_at;
 							$_SESSION["lastlogin"] = $lastlogin;
+							$_SESSION["isAdmin"] = $isAdmin;
 							
 							if ($badges == null || $badges == "") {
 								$sql = "UPDATE users SET badges='[1]' WHERE id=". $id;
@@ -211,9 +212,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
 		<!-- Styles and Font Awesome -->
 		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet">
-		<link href="/assets/css/sidebar.css" rel="stylesheet">
-		<link href="https://cdn.jsdelivr.net/gh/RED7Studios/RED7Community-Items@main/assets/css/style.css" rel="stylesheet">
-		<script src="https://cdn.jsdelivr.net/gh/RED7Studios/RED7Community-Items@main/assets/js/fontawesome.js"></script>
+		<link href="https://cdn.jsdelivr.net/gh/RED7Studios/RED7Community-Items@main/assets/css/style.css" rel="stylesheet">		<script src="/assets/js/fontawesome.js"></script>
 		<!----------------------------->
 	</head>
 	<body>

@@ -28,8 +28,6 @@ if (isset($_GET["page"])) { $page = $_GET["page"]; } else { $page=1; };
 
 		<link rel="stylesheet" href="/assets/css/style.css">
 
-		<link rel="stylesheet" href="/assets/css/sidebar.css">
-
 		<script src="/assets/js/fontawesome.js"></script>
 	</head>
 	<body>
@@ -109,7 +107,7 @@ if (isset($_GET["page"])) { $page = $_GET["page"]; } else { $page=1; };
 								while($row = mysqli_fetch_assoc($result)) {
 									if (in_array($row['id'], $items))
 									{
-										$item_owned = ' <img src="https://cdn.jsdelivr.net/gh/RED7Studios/RED7Community-Items@main/assets/images/item-owned.png" style="height: 20px; width: 20px;"/></h2>';
+										$item_owned = ' <img src="/assets/images/item-owned.png" style="height: 20px; width: 20px;"/></h2>';
 									}
 									else
 									{
@@ -142,7 +140,7 @@ if (isset($_GET["page"])) { $page = $_GET["page"]; } else { $page=1; };
 								while($row = mysqli_fetch_assoc($result)) {
 									if (in_array($row['id'], $items))
 									{
-										$item_owned = ' <img src="https://cdn.jsdelivr.net/gh/RED7Studios/RED7Community-Items@main/assets/images/item-owned.png" style="height: 20px; width: 20px;"/></h2>';
+										$item_owned = ' <img src="/assets/images/item-owned.png" style="height: 20px; width: 20px;"/></h2>';
 									}
 									else
 									{
@@ -175,7 +173,7 @@ if (isset($_GET["page"])) { $page = $_GET["page"]; } else { $page=1; };
 								while($row = mysqli_fetch_assoc($result)) {
 									if (in_array($row['id'], $items))
 									{
-										$item_owned = ' <img src="https://cdn.jsdelivr.net/gh/RED7Studios/RED7Community-Items@main/assets/images/item-owned.png" style="height: 20px; width: 20px;"/></h2>';
+										$item_owned = ' <img src="/assets/images/item-owned.png" style="height: 20px; width: 20px;"/></h2>';
 									}
 									else
 									{
@@ -208,7 +206,7 @@ if (isset($_GET["page"])) { $page = $_GET["page"]; } else { $page=1; };
 								while($row = mysqli_fetch_assoc($result)) {
 									if (in_array($row['id'], $items))
 									{
-										$item_owned = ' <img src="https://cdn.jsdelivr.net/gh/RED7Studios/RED7Community-Items@main/assets/images/item-owned.png" style="height: 20px; width: 20px;"/></h2>';
+										$item_owned = ' <img src="/assets/images/item-owned.png" style="height: 20px; width: 20px;"/></h2>';
 									}
 									else
 									{
@@ -241,7 +239,7 @@ if (isset($_GET["page"])) { $page = $_GET["page"]; } else { $page=1; };
 								while($row = mysqli_fetch_assoc($result)) {
 									if (in_array($row['id'], $items))
 									{
-										$item_owned = ' <img src="https://cdn.jsdelivr.net/gh/RED7Studios/RED7Community-Items@main/assets/images/item-owned.png" style="height: 20px; width: 20px;"/></h2>';
+										$item_owned = ' <img src="/assets/images/item-owned.png" style="height: 20px; width: 20px;"/></h2>';
 									}
 									else
 									{

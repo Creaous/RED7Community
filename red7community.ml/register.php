@@ -96,7 +96,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 			
 			// Attempt to execute the prepared statement
 			if(mysqli_stmt_execute($stmt)){
-				$data = file_get_contents($API_URL. '/user.php?key=CvHKAVEBzGveKVUpLaUZZWgHt&api=getbyname&name='. $username);
+				$data = file_get_contents($API_URL. '/user.php?api=getbyname&name='. $username);
 				$json_a = json_decode($data, true);
 				$id = $json_a[0]['data'][0]['id'];
 
@@ -132,12 +132,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 		<title>Sign-up - <?php echo $site_name; ?></title>
 
 		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
-
-		<link href="/assets/css/sidebar.css" rel="stylesheet">
-
 		<link href="https://cdn.jsdelivr.net/gh/RED7Studios/RED7Community-Items@main/assets/css/style.css" rel="stylesheet">
-
-		<script src="https://cdn.jsdelivr.net/gh/RED7Studios/RED7Community-Items@main/assets/js/fontawesome.js"></script>
+		<script src="/assets/js/fontawesome.js"></script>
 	</head>
 	<body>
 		<?php include_once $_SERVER["DOCUMENT_ROOT"]. "/account/navbar.php" ?>

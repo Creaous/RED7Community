@@ -1,4 +1,5 @@
 # RED7Community
+### Creator tool: [#6](https://github.com/RED7Studios/RED7Community/issues/6)
 ## Description
 RED7Community is a community website where you can find new friends and play games. This repo is for hosting the source code of RED7Community, no support will be given if you edit the code.
 
@@ -26,3 +27,5 @@ RED7Community is a community website where you can find new friends and play gam
 
 ## Default Credentials
 The default admin user is **RED7Community**, the password to this account is **password**.
+Please make sure to change this password before the website goes into production otherwise the users will be able to gain access to administration privileges.
+#### NOTE: If you are using the Creator Tool: [#6](https://github.com/RED7Studios/RED7Community/issues/6) (which is recommended), then just use the username you used there and the same password which is: "**password**".

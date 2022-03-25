@@ -14,7 +14,7 @@ if(!isset($_SESSION)){
 	session_start();
 }
 
-$data = file_get_contents($API_URL. '/user.php?key=CvHKAVEBzGveKVUpLaUZZWgHt&api=getbyid&id='. $_GET['id']);
+$data = file_get_contents($API_URL. '/user.php?api=getbyid&id='. $_GET['id']);
 
 // Decode the json response.
 if (!str_contains($data, "This user doesn't exist or has been deleted"))
@@ -26,14 +26,14 @@ if (!str_contains($data, "This user doesn't exist or has been deleted"))
 	$id = $_GET['id'];
 	$username = $json_a[0]['data'][0]['username'];
 
-	if ($isBanned != 1)
-	{
+	$real_displayname = $json_a[0]['data'][0]['displayname'];
+	$real_description = $json_a[0]['data'][0]['description'];
+
+	if ($isBanned != 1) {
 		$displayname = filterwords($json_a[0]['data'][0]['displayname']);
 		$description = filterwords($json_a[0]['data'][0]['description']);
 		$icon = $json_a[0]['data'][0]['icon'];
-	}
-	else
-	{
+	} else {
 		$displayname = "[ CONTENT REMOVED ]";
 		$description = "[ CONTENT REMOVED ]";
 		$icon = "https://www.gravatar.com/avatar/?s=180";
@@ -50,8 +50,10 @@ if (!str_contains($data, "This user doesn't exist or has been deleted"))
 	$isAdmin = $json_a[0]['data'][0]['isAdmin'];
 	$isVerified = $json_a[0]['data'][0]['isVerified'];
 	$items = $json_a[0]['data'][0]['items'];
+	$clans = $json_a[0]['data'][0]['clans'];
+	$badges = $json_a[0]['data'][0]['badges'];
 
-	$data_avatar = file_get_contents($API_URL. '/avatar.php?key=CvHKAVEBzGveKVUpLaUZZWgHt&api=getbyid&id='. $_GET['id']);
+	$data_avatar = file_get_contents($API_URL. '/avatar.php?api=getbyid&id='. $_GET['id']);
 
 	$json_a_avatar = json_decode($data_avatar, true);
 
@@ -79,8 +81,6 @@ if (isset($_GET["page"])) { $page = $_GET["page"]; } else { $page=1; };
 
 		<link rel="stylesheet" href="/assets/css/style.css">
 
-		<link rel="stylesheet" href="/assets/css/sidebar.css">
-
 		<script src="/assets/js/fontawesome.js"></script>
 
 		<script src="/assets/js/relation.js"></script>
@@ -94,24 +94,53 @@ if (isset($_GET["page"])) { $page = $_GET["page"]; } else { $page=1; };
 	</head>
 	<body onload="init();">
 		<?php include_once $_SERVER["DOCUMENT_ROOT"]. "/account/navbar.php" ?>
-		<div class="page-content-wrapper">
+        <div class="page-content-wrapper">
+            <script type="text/javascript">
+                var ajaxSubmit = function (formEl) {
+                    // fetch the data for the form
+                    var data = $(formEl).serializeArray();
+                    var url = $(formEl).attr('action');
 
-				<script>
-					
-					var observe;
-					if (window.attachEvent) {
-						observe = function (element, event, handler) {
-							element.attachEvent('on'+event, handler);
-						};
-					}
-					else {
+                    // setup the ajax request
+                    $.ajax({
+                        type: 'POST',
+                        url: url,
+                        data: data,
+                        dataType: 'json',
+                        success: function (d) {
+                            if (d.success) {
+                                alert('Changed value successfully!');
+                                document.location = document.location;
+                            }
+                            else
+                            {
+                                alert("An error occurred while changing value, please try again later.")
+                                document.location = document.location;
+                            }
+                        }
+                    });
+
+                    // return false so the form does not actually
+                    // submit to the page
+                    return false;
+                }
+            </script>
+
+            <script>
+
+                let observe;
+                if (window.attachEvent) {
+                    observe = function (element, event, handler) {
+                        element.attachEvent('on' + event, handler);
+                    };
+                } else {
 						observe = function (element, event, handler) {
 							element.addEventListener(event, handler, false);
 						};
 					}
 
 					function init () {
-						var text = document.getElementById('text');
+						let text = document.getElementById('text');
 						function resize () {
 							text.style.height = 'auto';
 							text.style.height = text.scrollHeight+'px';
@@ -120,6 +149,7 @@ if (isset($_GET["page"])) { $page = $_GET["page"]; } else { $page=1; };
 						function delayedResize () {
 							window.setTimeout(resize, 0);
 						}
+
 						observe(text, 'change',  resize);
 						observe(text, 'cut',     delayedResize);
 						observe(text, 'paste',   delayedResize);
@@ -150,6 +180,7 @@ if (isset($_GET["page"])) { $page = $_GET["page"]; } else { $page=1; };
 					}
 				}
 				?>
+
 				<main class="col-md-9">
 					<div class="d-flex align-items-center border-bottom">
 						<?php
@@ -159,17 +190,17 @@ if (isset($_GET["page"])) { $page = $_GET["page"]; } else { $page=1; };
 								exit;
 							}
 						?>
-						<img src="<?php echo htmlspecialchars($icon) ?>" style="height: 128px; width: 128px;"></img>
+						<img src="<?php echo htmlspecialchars($icon) ?>" class="profile-picture"></img>
 						&nbsp;
-						<?php if (str_contains($membership, "Premium")) { echo '<img src="'. $premiumIcon . '" style="height: 40px; width: 40px;"></img>'; } ?>
+						<?php if (str_contains($membership, "Premium")) { echo '<img src="'. $premiumIcon . '" class="premium-icon"></img>'; } ?>
 						<h2 class="<?php if( $isAdmin == 1 ) { echo 'title-rainbow-lr'; } else {  } ?>"> <?php if ($displayname != "" && $displayname != "[]" && !empty($displayname)) { echo filterwords(htmlspecialchars($displayname)); } else { echo filterwords(htmlspecialchars($username)); } ?></h2>
 						&nbsp;
-						<?php if ($isVerified == 1) { echo '<img src="'. $verifiedIcon . '" style="height: 35px; width: 35px;"></img>'; } ?>
+						<?php if ($isVerified == 1) { echo '<img src="'. $verifiedIcon . '" class="verified-icon"></img>'; } ?>
 						<small><b>(@<?php echo htmlspecialchars($username); ?>)</b></small>
-						<?php if ( $isBanned == 1 ) { echo '<p><strong style="color: red;">*BANNED*</strong></p>'; } ?>
+						<?php if ( $isBanned == 1 ) { echo '<p><strong class="banned-text">*BANNED*</strong></p>'; } ?>
 
                         <?php
-                        // (A) LOAD RELATIOSHIP LIBRARY + SET CURRENT USER
+                        // (A) LOAD RELATIONSHIP LIBRARY + SET CURRENT USER
                         require $_SERVER['DOCUMENT_ROOT']. "/assets/relation.php";
 
                         // (B) PROCESS RELATIONSHIP REQUEST
@@ -220,19 +251,19 @@ if (isset($_GET["page"])) { $page = $_GET["page"]; } else { $page=1; };
                                     // (C3) FRIEND STATUS
                                     // FRIENDS
                                     if (isset($friends['f'][$id])) {
-                                        echo "<a class='btn btn-danger' onclick=\"relate('unfriend', $id)\">Unfriend</a>";
+                                        echo "<a class='btn btn-danger' onclick=\"relate('unfriend', $id)\"><i class='fas fa-user-times'></i> Unfriend</a>";
                                     }
                                     // INCOMING FRIEND REQUEST
                                     else if (isset($requests['in'][$id])) {
-                                        echo "<a class='btn btn-success' onclick=\"relate('accept', $id)\">Accept Friend</a>";
+                                        echo "<a class='btn btn-success' onclick=\"relate('accept', $id)\"><i class='fas fa-user-plus'></i> Accept Friend</a>";
                                     }
                                     // OUTGOING FRIEND REQUEST
                                     else if (isset($requests['out'][$id])) {
-                                        echo "<a class='btn btn-danger' onclick=\"relate('cancel', $id)\">Cancel Add</a>";
+                                        echo "<a class='btn btn-danger' onclick=\"relate('cancel', $id)\"><i class='fas fa-user-slash'></i> Cancel Request</a>";
                                     }
                                     // STRANGERS
                                     else {
-                                        echo "<a class='btn btn-primary' onclick=\"relate('add', $id)\">Add Friend</a>";
+                                        echo "<a class='btn btn-primary' onclick=\"relate('add', $id)\"><i class='fas fa-user-friends'></i> Friend</a>";
                                     }
                                 }
                             }
@@ -256,65 +287,214 @@ if (isset($_GET["page"])) { $page = $_GET["page"]; } else { $page=1; };
 								if ($banReason != "") {
 									echo '<h3>Ban Information:</h3><p>This user was banned on: <strong>'. $banDate. '</strong> with the following reason: <strong>'. $banReason. '</strong></p><hr/>';
 								}
-								else
-								{
-									echo '<h3>Ban Information:</h3><p>This user was banned on: <strong>'. $banDate. '</strong> with the following reason: <strong>Unknown</strong></p><hr/>';
+								else {
+									echo '<h3>Ban Information:</h3><p>This user was banned on: <strong>' . $banDate . '</strong> with the following reason: <strong>Unknown</strong></p><hr/>';
 								}
-							}
-							else
-							{
-								echo '<h3>Ban Information:</h3><p>This user was banned on: <strong>Unknown</strong> with the following reason: <strong>'. $banReason . '</strong></p><hr/>';
+							} else {
+								echo '<h3>Ban Information:</h3><p>This user was banned on: <strong>Unknown</strong> with the following reason: <strong>' . $banReason . '</strong></p><hr/>';
 							}
 						}
 						?>
 
-						<h3>About:</h3>
-						<textarea style="width: 100%; border: 0 none white; overflow: hidden; padding: 0; outline: none; background-color: #D0D0D0;" id="text" disabled><?php echo filterwords(htmlspecialchars($description)); ?></textarea>
-						<hr/>
-
-						<canvas id="c"></canvas>
-
-						<h4>Currently Wearing:</h4>
-						<div class="row row-cols-1 row-cols-md-3 g-4">
-							<?php
-								$total = 0;
-
-								$datatable = "catalog"; // MySQL table name
-								$results_per_page = 8; // number of results per page
-
-								$start_from = ($page-1) * $results_per_page;
-								$sql = "SELECT id, displayname, type, icon FROM catalog WHERE isEquippable=1";
+                        <h3>About:</h3>
+                        <textarea class="description" id="text"
+                                  disabled><?php echo filterwords(htmlspecialchars($description)); ?></textarea>
+                        <hr/>
+						<?php
+							if ($your_isAdmin == 1) {
+								$sql = "SELECT currency FROM users WHERE id=" . $_GET['id'];
 								$result = mysqli_query($link, $sql);
-
-								while($row = mysqli_fetch_assoc($result)) {
-
-									$inventory = json_decode($hats, true);
-
-									$inventory[] = $face;
-									$inventory[] = $shirt;
-									$inventory[] = $pants;
-
-									if (in_array($row['id'], $inventory))
-									{
-										$total = $total + 1;
-
-										$thingy = " border-success";
-										$thingy2 = "/catalog/item.php?id=". $row['id'];
-
-										echo '<div class="col" style="height:180px; width:180px"><a href="'. $thingy2. '" style="text-decoration: none;"><div class="align-items-center card text-center'. $thingy. '"><img class="card-img-top" src="'. $row['icon'] . '" style="height:90px;width:90px;margin-top:15px"><div class="card-body"><h6 class="card-title" style="text-align: center; width: 120px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">'. $row['displayname'] . '</h6><p class="card-text" style="text-align: center; width: 120px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">'. $row['type']. '</div></div></a></div>';
+								if (mysqli_num_rows($result) > 0) {
+									while ($row = mysqli_fetch_assoc($result)) {
+										$current_currency = $row['currency'];
 									}
-								};
-							?>
-						</div>
+								}
 
-						<hr/>
+								echo '<fieldset>
+                            <h3>Real Data:</h3>
+                            <p><b>Display Name: </b>' . $real_displayname . '</p>
+                            <p><b>Username: </b>' . $username . '</p>
+                            <p><b>Description: </b>' . $real_description . '</p>
+                    
+                            <form method="post" action="/moderate/ajax.php"
+                                  onSubmit="return ajaxSubmit(this);">
+                                <label><b>Currency Amount:</b></label> <input maxlength="69420" type="number" name="amount"
+                                                                              value="' . $current_currency . '"/>
+                                <input hidden type="text" name="action" value="currencyChange"/>
+                                <input hidden type="text" name="id" value="' . $_GET['id'] . '"/>
+                                <input class="btn btn-success" type="submit" name="form_submit" value="Change"/>
+                            </form>
+                        </fieldset>
+                        <hr/>
+                        ';
 
-						<a class="btn btn-primary" href="/users/following.php?id=<?php echo $_GET['id'] ?>">Following</a>
-						<a class="btn btn-primary" href="/users/followers.php?id=<?php echo $_GET['id'] ?>">Followers</a>
-						<a class="btn btn-primary" href="/users/friends.php?id=<?php echo $_GET['id'] ?>">Friends</a>
-						<a class="btn btn-primary" href="/users/badges.php?id=<?php echo $_GET['id'] ?>">Badges</a>
-						<a class="btn btn-primary" href="/users/inventory.php?id=<?php echo $_GET['id'] ?>">Inventory</a>
-						<a class="btn btn-primary" href="/users/clans.php?id=<?php echo $_GET['id'] ?>">Clans</a>
+								if ($isBanned == 1) {
+									$checked = 'checked';
+								} else {
+									$checked = "";
+								}
+
+								echo '
+                                <fieldset>
+                <h3>Ban Settings:</h3>
+                <form method="post" action="/moderate/ajax.php"
+                      onSubmit="return ajaxSubmit(this);">
+                    <h5>Is Banned:</h5>
+                    <input type="checkbox" name="isBanned"' . $checked . '/>
+                    <h5>Ban Reason:</h5>
+                    <input maxlength="69420" type="text" name="banReason" class="moderate-input" value="' . $banReason . '"/>
+                    <input hidden type="text" name="action" value="banningUser"/>
+                    <input hidden type="text" name="id" value="' . $_GET['id'] . '"/>
+                    <input class="btn btn-success" type="submit" name="form_submit" value="Ban / Unban"/>
+                </form>
+            </fieldset>
+
+            <hr/>
+                                ';
+
+
+							}
+
+						?>
+
+                        <canvas id="c"></canvas>
+                        <div title="currently-wearing" id="currently-wearing">
+                            <h4>Currently Wearing:</h4>
+                            <div class="row row-cols-1 row-cols-md-2 flex-nowrap overflow-auto profile-list-width">
+                                <?php
+                                    $total = 0;
+
+                                    $datatable = "catalog"; // MySQL table name
+                                    $results_per_page = 8; // number of results per page
+
+                                    $start_from = ($page-1) * $results_per_page;
+                                    $sql = "SELECT id, displayname, type, icon FROM catalog WHERE isEquippable=1";
+                                    $result = mysqli_query($link, $sql);
+
+                                    while($row = mysqli_fetch_assoc($result)) {
+
+                                        $inventory = json_decode($hats, true);
+
+                                        $inventory[] = $face;
+                                        $inventory[] = $shirt;
+                                        $inventory[] = $pants;
+
+                                        if (in_array($row['id'], $inventory))
+                                        {
+                                            $total = $total + 1;
+
+                                            $thingy = " border-success";
+                                            $thingy2 = "/catalog/item.php?id=". $row['id'];
+
+                                            echo '<div class="col profile-list-card"><a class="profile-list" href="'. $thingy2. '"><div class="align-items-center card text-center'. $thingy. '"><img class="card-img-top normal-img" src="'. $row['icon'] . '"><div class="card-body"><h6 class="card-title profile-list-title">'. $row['displayname'] . '</h6><p class="card-text">'. $row['type']. '</div></div></a></div>';
+                                        }
+                                    }
+                                ?>
+                            </div>
+                        </div>
+
+                        <hr/>
+
+                        <div title="friends" id="friends">
+                            <h3>Friends:</h3>
+                            <div class="row row-cols-1 row-cols-md-2 flex-nowrap overflow-auto profile-list-width">
+                                <?php
+                                    $friends = $REL->getFriends($_GET['id']);
+
+                                    if ($friends != "" && $friends != "[]" && !empty($friends)) {
+                                        foreach ($users as $id=>$name) {
+                                            if (isset($friends['f'][$id]))
+                                            {
+                                                $data = file_get_contents($API_URL. '/user.php?api=getbyname&name='. $name);
+
+                                                $json_a = json_decode($data, true);
+
+                                                $friend_id = $json_a[0]['data'][0]['id'];
+                                                $friend_name = $json_a[0]['data'][0]['username'];
+                                                $friend_icon = $json_a[0]['data'][0]['icon'];
+                                                $friend_dsp = $json_a[0]['data'][0]['displayname'];
+
+                                                if ($friend_dsp == null || $friend_dsp == "")
+                                                {
+                                                    $friend_f = htmlspecialchars($name);
+                                                }
+                                                else
+                                                {
+                                                    $friend_f = htmlspecialchars($friend_dsp);
+                                                }
+
+                                                echo '<div class="col profile-list-card"><a class="profile-list" href="/users/profile.php?id='. $friend_id . '"><div class="align-items-center card text-center"><img class="card-img-top user-img" src="'. $friend_icon . '"><div class="card-body"><h6 class="card-title profile-list-title">'. $friend_f . '</h6> <small><b>(@<small class="profile-list-title">'. htmlspecialchars($name). '</small>)</b></small></div></div></a></div>';
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        echo '<p>This user has no friends yet.</p>';
+                                    }
+                                ?>
+                            </div>
+                        </div>
+
+                        <hr/>
+
+                        <div title="badges" id="badges">
+                            <h3>Badges:</h3>
+                            <div class="row row-cols-1 row-cols-md-2 flex-nowrap overflow-auto profile-list-width">
+                                <?php
+                                    if ($badges != "" && $badges != "[]" && !empty($badges)) {
+                                        foreach(json_decode($badges) as $mydata)
+                                        {
+                                            $data = file_get_contents($API_URL. '/badge.php?api=getbyid&id='. $mydata);
+
+                                            $json_a = json_decode($data, true);
+
+                                            $badge_id = $json_a[0]['data'][0]['id'];
+                                            $badge_name = $json_a[0]['data'][0]['displayname'];
+                                            $badge_icon = $json_a[0]['data'][0]['icon'];
+
+                                            echo '<div class="col profile-list-card"><a class="profile-list" href="/catalog/badge.php?id='. $badge_id . '"><div class="align-items-center card text-center"><img class="card-img-top user-img" src="'. $badge_icon . '"><div class="card-body"><h6 class="card-title profile-list-title">'. $badge_name . '</h6></div></div></a></div>';
+                                        }
+                                    }
+                                    else
+                                    {
+                                        echo '<p>This user has no badges yet.</p>';
+                                    }
+                                ?>
+                            </div>
+                        </div>
+
+                        <hr/>
+
+                        <div title="inventory" id="inventory">
+                            <h3>Inventory:</h3>
+                            <div class="row row-cols-1 row-cols-md-2 flex-nowrap overflow-auto profile-list-width">
+                                <?php
+                                    $vals = array_count_values(json_decode($items, true));
+
+                                    if ($items != "" && $items != "[]" && !empty($items)) {
+                                        foreach($vals as $key=>$mydata)
+                                        {
+                                            $data = file_get_contents($API_URL. '/catalog.php?api=getitembyid&id='. $key);
+
+                                            $json_a = json_decode($data, true);
+
+                                            $item_id = $json_a[0]['data'][0]['id'];
+                                            $item_propername = $json_a[0]['data'][0]['name'];
+                                            $item_name = $json_a[0]['data'][0]['displayname'];
+                                            $item_icon = $json_a[0]['data'][0]['icon'];
+
+                                            $value = $vals[$key];
+
+                                            echo '<div class="col profile-list-card"><a class="profile-list" href="/catalog/item.php?id='. $item_id . '"><div class="align-items-center card text-center"><img class="card-img-top normal-img" src="'. $item_icon . '"><div class="card-body"><h6 class="card-title profile-list-title">'. $item_name . '</h6><p class="card-text profile-list-title"><span class="badge bg-success">x'. number_format_short($value) . '</span></div></div></a></div>';
+                                        }
+                                    }
+                                    else
+                                    {
+                                        echo '<p>This user has no items yet.</p>';
+                                    }
+                                ?>
+                            </div>
+                        </div>
 					</div>
 				</div>
 			</main>
@@ -389,7 +569,7 @@ if (isset($_GET["page"])) { $page = $_GET["page"]; } else { $page=1; };
 			}
 
 			<?php
-				$data = file_get_contents($API_URL. '/catalog.php?key=CvHKAVEBzGveKVUpLaUZZWgHt&api=getitembyid&id='. $face);
+				$data = file_get_contents($API_URL. '/catalog.php?api=getitembyid&id='. $face);
 
 				$json_a = json_decode($data, true);
 
@@ -397,7 +577,7 @@ if (isset($_GET["page"])) { $page = $_GET["page"]; } else { $page=1; };
 				$name = $json_a[0]['data'][0]['displayname'];
 				$icon = $json_a[0]['data'][0]['texture'];
 
-				$data_shirt = file_get_contents($API_URL. '/catalog.php?key=CvHKAVEBzGveKVUpLaUZZWgHt&api=getitembyid&id='. $shirt);
+				$data_shirt = file_get_contents($API_URL. '/catalog.php?api=getitembyid&id='. $shirt);
 
 				$json_a_shirt = json_decode($data_shirt, true);
 
@@ -415,7 +595,7 @@ if (isset($_GET["page"])) { $page = $_GET["page"]; } else { $page=1; };
 					$shirticon = $json_a_shirt[0]['data'][0]['texture'];
 				}
 
-				$data_pants = file_get_contents($API_URL. '/catalog.php?key=CvHKAVEBzGveKVUpLaUZZWgHt&api=getitembyid&id='. $pants);
+				$data_pants = file_get_contents($API_URL. '/catalog.php?api=getitembyid&id='. $pants);
 
 				$json_a_pants = json_decode($data_pants, true);
 
@@ -477,7 +657,7 @@ if (isset($_GET["page"])) { $page = $_GET["page"]; } else { $page=1; };
 				<?php
 				$armthingy = $STORAGE_URL. "/Avatar/LeftArm.obj";
 				foreach(json_decode($hats, true) as $hat) {
-					$data = file_get_contents($API_URL. '/catalog.php?key=CvHKAVEBzGveKVUpLaUZZWgHt&api=getitembyid&id='. $hat);
+					$data = file_get_contents($API_URL. '/catalog.php?api=getitembyid&id='. $hat);
 
 					$json_a = json_decode($data, true);
 
@@ -621,7 +801,7 @@ if (isset($_GET["page"])) { $page = $_GET["page"]; } else { $page=1; };
 
 			<?php
 			foreach(json_decode($hats, true) as $hat) {
-				$data = file_get_contents($API_URL. '/catalog.php?key=CvHKAVEBzGveKVUpLaUZZWgHt&api=getitembyid&id='. $hat);
+				$data = file_get_contents($API_URL. '/catalog.php?api=getitembyid&id='. $hat);
 
 				$json_a = json_decode($data, true);
 
